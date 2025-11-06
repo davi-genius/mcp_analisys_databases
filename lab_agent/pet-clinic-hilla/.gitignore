@@ -1,0 +1,22 @@
+target/*
+.settings/*
+.classpath
+.project
+.factorypath
+.attach_pid*
+.idea
+*.iml
+*.ipr
+*.iws
+/target
+.sts4-cache/
+.vscode
+_site/
+
+# The following files are generated/updated by vaadin-maven-plugin
+node_modules/
+frontend/generated/
+pnpmfile.js
+webpack.generated.js
+
+/src/main/frontend/generated/

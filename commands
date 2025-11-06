@@ -1,0 +1,51 @@
+===============================================
+  DB PERFORMANCE ANALYZER - COMANDOS
+===============================================
+
+🚀 INICIAR:
+===========
+docker-compose up --build -d
+
+🤖 CONFIGURAR MCP (uma vez):
+============================
+.\setup.ps1
+. $PROFILE
+
+
+🎯 USAR MCP:
+============
+mcp
+
+🎯 COMANDOS DENTRO DO MCP
+=========================
+
+Dentro do prompt compass>:
+
+- mcp status     → Status do servidor MCP
+- mcp list       → Listar bancos de dados
+- mcp tables     → Listar tabelas do banco
+- mcp actions    → Menu de ações interativas
+- mcp prompts    → Lista de prompts prontos (10 opções)
+- mcp app        → Informações da aplicação
+- mcp help       → Ajuda completa
+- mcp quit       → Sair do prompt
+
+🌐 ACESSOS:
+===========
+- PetClinic: http://localhost:8080
+- MCP Health: http://localhost:8000/health
+- PostgreSQL: localhost:5432
+
+🛠️ MANUTENÇÃO:
+===============
+# Parar
+docker-compose down
+
+# Resetar
+docker-compose down -v
+docker-compose up --build -d
+
+# Status
+docker ps
+
+✅ PRONTO!

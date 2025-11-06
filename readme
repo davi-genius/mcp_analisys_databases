@@ -1,0 +1,110 @@
+===============================================
+  COMANDOS PARA ACESSAR O MCP ANALYZER
+===============================================
+
+🚀 INICIAR A APLICAÇÃO
+======================
+
+1. Navegar para a pasta raiz:
+   cd "C:\Users\devop\OneDrive\Desktop\COMPASS\db-performance-analyzer"
+
+2. Subir os containers Docker:
+   docker-compose up --build -d
+
+3. Verificar se está rodando:
+   docker ps
+
+📋 CONFIGURAR O COMANDO MCP (uma vez apenas)
+===========================================
+
+MÉTODO 1 - Script Automático:
+   .\setup.ps1
+
+MÉTODO 2 - Manual no PowerShell:
+   # Adicionar função ao perfil do PowerShell
+   Add-Content -Path $PROFILE -Value "`nfunction mcp { docker exec -it postgres-analyzer python /app/mcp-prompt.py }"
+   
+   # Recarregar o perfil
+   . $PROFILE
+
+🤖 ACESSAR O MCP AGENT
+======================
+
+Depois de configurado, basta digitar:
+   mcp
+
+Ou diretamente sem configurar:
+   docker exec -it postgres-analyzer python /app/mcp-prompt.py
+
+🎯 COMANDOS DENTRO DO MCP
+=========================
+
+Dentro do prompt compass>:
+
+- mcp status     → Status do servidor MCP
+- mcp list       → Listar bancos de dados
+- mcp tables     → Listar tabelas do banco
+- mcp actions    → Menu de ações interativas
+- mcp prompts    → Lista de prompts prontos (10 opções)
+- mcp app        → Informações da aplicação
+- mcp help       → Ajuda completa
+- mcp quit       → Sair do prompt
+
+🌐 ACESSOS DISPONÍVEIS
+======================
+
+- PetClinic App: http://localhost:8080
+- MCP Health: http://localhost:8000/health
+- PostgreSQL: localhost:5432 (user: petclinic, pass: petclinic)
+
+🛠️ COMANDOS DE MANUTENÇÃO
+==========================
+
+# Parar tudo
+docker-compose down
+
+# Ver logs
+docker-compose logs -f
+
+# Resetar tudo
+docker-compose down -v
+docker system prune -f
+docker-compose up --build -d
+
+# Verificar containers
+docker ps -a
+
+# Testar conectividade
+curl http://localhost:8000/health
+curl http://localhost:8080/actuator/health
+
+🚨 TROUBLESHOOTING - ERRO DE TIMEOUT:
+====================================
+
+Se aparecer erro "DeadlineExceeded" ou "context deadline exceeded":
+
+SOLUÇÃO RÁPIDA:
+# Aumentar timeout do Docker
+$env:DOCKER_CLIENT_TIMEOUT = "300"
+$env:COMPOSE_HTTP_TIMEOUT = "300"
+docker-compose up --build -d
+
+SOLUÇÃO ALTERNATIVA:
+# Pré-baixar imagens uma por vez
+docker pull postgres:14
+docker pull python:3.10-slim
+docker pull maven:3.8-openjdk-17
+docker pull openjdk:17-jdk-alpine
+docker-compose up --build -d
+
+===============================================
+  OBSERVAÇÕES IMPORTANTES
+===============================================
+
+✅ O comando 'mcp' usa $PROFILE do PowerShell
+✅ A aplicação roda da pasta RAIZ do projeto
+✅ Todos os containers são isolados e limpos
+✅ O MCP Agent tem 10 prompts prontos para análise
+✅ Interface interativa com logo da Compass
+
+🎉 SUCESSO! O MCP está funcionando perfeitamente!
