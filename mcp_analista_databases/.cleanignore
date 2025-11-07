@@ -1,0 +1,35 @@
+# Vagrant - Arquivos desnecessários removidos
+# Docker files - não mais necessários
+docker-compose.yml
+.dockerignore
+*/Dockerfile
+*/entrypoint.sh
+
+# Windows scripts - removidos
+setup.ps1
+manage-vagrant.ps1
+*.ps1
+
+# Arquivos de configuração do usuário
+.vagrant/
+
+# Logs do sistema
+*.log
+
+# Cache do Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Node modules
+node_modules/
+
+# Maven target
+target/
+
+# Environment files (manter apenas .example)
+.env
+
+# Backup files
+*.bak
+*~

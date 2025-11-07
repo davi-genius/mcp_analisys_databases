@@ -1,0 +1,63 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  # Base box - Ubuntu 22.04 LTS (Jammy Jellyfish)
+  config.vm.box = "ubuntu/jammy64"
+  
+  # Configurações globais
+  config.vm.box_check_update = false
+  config.ssh.insert_key = false
+  config.ssh.forward_agent = true
+
+  # VM Única - MCP + PetClinic + PostgreSQL
+  config.vm.define "mcp-petclinic-app", primary: true do |app|
+    app.vm.hostname = "mcp-petclinic-app"
+    app.vm.network "private_network", ip: "192.168.56.10"
+    app.vm.network "forwarded_port", guest: 8000, host: 8000, auto_correct: true  # MCP API
+    app.vm.network "forwarded_port", guest: 8080, host: 8080, auto_correct: true  # PetClinic
+    app.vm.network "forwarded_port", guest: 5432, host: 5432, auto_correct: true  # PostgreSQL
+    
+    app.vm.provider "virtualbox" do |vb|
+      vb.memory = "4096"  # 4GB para rodar MCP + PetClinic + PostgreSQL
+      vb.cpus = 2
+      vb.name = "mcp-petclinic-app"
+      vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+      vb.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
+    end
+    
+    # Sync do código MCP
+    app.vm.synced_folder "./apps/mcp", "/opt/mcp",
+      type: "rsync",
+      rsync__exclude: [".git/", "__pycache__/", "*.pyc", ".env"]
+    
+    # Sync do código PetClinic
+    app.vm.synced_folder "./apps/pet-clinic-hilla", "/opt/petclinic", 
+      type: "rsync",
+      rsync__exclude: [".git/", "node_modules/", "target/", ".mvn/"]
+    
+    # Provisionar primeiro o MCP + PostgreSQL
+    app.vm.provision "shell", path: "vagrant/provision-analyzer.sh"
+    
+    # Depois provisionar o PetClinic
+    app.vm.provision "shell", path: "vagrant/provision-petclinic.sh"
+    
+    # Copiar script de correção
+    app.vm.provision "file", source: "./fix_mcp.sh", destination: "/vagrant/fix_mcp.sh"
+    
+    # Configurar prompt interativo e aliases
+    app.vm.provision "file", source: "./apps/mcp/mcp-prompt.py", destination: "/home/vagrant/mcp-prompt.py"
+    
+    app.vm.provision "shell", inline: <<-SHELL
+      echo "alias mcp-prompt='cd /home/vagrant && python3 mcp-prompt.py'" >> /home/vagrant/.bashrc
+      echo "alias mcp-status='systemctl status mcp-analyzer'" >> /home/vagrant/.bashrc
+      echo "alias mcp-logs='journalctl -u mcp-analyzer -f'" >> /home/vagrant/.bashrc
+      echo "alias petclinic-status='systemctl status petclinic'" >> /home/vagrant/.bashrc
+      echo "alias petclinic-logs='journalctl -u petclinic -f'" >> /home/vagrant/.bashrc
+      echo "alias pg-status='systemctl status postgresql'" >> /home/vagrant/.bashrc
+      echo "alias pg-logs='journalctl -u postgresql -f'" >> /home/vagrant/.bashrc
+      chown vagrant:vagrant /home/vagrant/mcp-prompt.py
+      chmod +x /home/vagrant/mcp-prompt.py
+    SHELL
+  end
+end

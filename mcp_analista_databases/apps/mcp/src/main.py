@@ -1,7 +1,14 @@
 import argparse
 import logging
 import os
+import sys
 import json
+from pathlib import Path
+
+# Add src directory to Python path
+src_dir = Path(__file__).parent
+sys.path.insert(0, str(src_dir))
+
 from starlette.responses import Response, JSONResponse, FileResponse
 from starlette.requests import Request
 from mcp.server.fastmcp import FastMCP
